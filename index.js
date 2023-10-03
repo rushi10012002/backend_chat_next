@@ -24,9 +24,13 @@ const server = app.listen(port, () => {
 });
 const io = socket(server, {
     cors: {
+<<<<<<< HEAD
         origin: "https://chatapprushi.netlify.app/",
         // origin: "http://localhost:3000",
 
+=======
+        origin: "https://chatapprushi.netlify.app",
+>>>>>>> d973559cd10763182ec5a3c54115827985afb922
         Credential: true
     }
 });
