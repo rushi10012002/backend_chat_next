@@ -24,17 +24,28 @@ const server = app.listen(port, () => {
 });
 const io = socket(server, {
     cors: {
-        origin: "https://chatapprushi.netlify.app/chat",
+        origin: "https://chatapprushi.netlify.app/",
+        // origin: "http://localhost:3000",
+
         Credential: true
     }
-})
+});
+let activeUser = [];
 global.onlineUser = new Map()
 io.on("connection", (socket) => {
     global.chatSocket = socket
     console.log(socket.id);
-    socket.on("add-user", (userId) => {
+
+    socket.on("add-user", async (userId) => {
         console.log(userId);
         onlineUser.set(userId, socket.id)
+        if (!activeUser.some(item => item.userId == userId)) {
+            activeUser.push({
+                userId: userId,
+                socketId: socket.id
+            })
+        }
+        io.emit("active-users", activeUser)
     });
 
     socket.on("send-message", (data) => {
@@ -42,7 +53,17 @@ io.on("connection", (socket) => {
         const sendSocket = onlineUser.get(data.receiver);
         if (sendSocket) {
             socket.to(sendSocket).emit("receive-message", data)
+            // socket.to(sendSocket).emit("receive-message", data)
         }
+    });
+    socket.on("log-out", (userId) => {
+        activeUser = activeUser.filter(item => item.userId != userId)
+        io.emit("active-users", activeUser)
+    })
+
+    socket.on("disconnect", (userId) => {
+        activeUser = activeUser.filter(item => item.userId != userId)
+        io.emit("active-users", activeUser)
     })
 })
 
