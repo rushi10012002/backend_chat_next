@@ -24,7 +24,7 @@ const server = app.listen(port, () => {
 });
 const io = socket(server, {
     cors: {
-        origin: "https://chatapprushi.netlify.app/chat",
+        origin: "https://chatapprushi.netlify.app",
         Credential: true
     }
 })
