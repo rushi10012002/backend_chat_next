@@ -26,7 +26,6 @@ const io = socket(server, {
     cors: {
         origin: "https://chatapprushi.netlify.app",
         // origin: "http://localhost:3000",
-
         Credential: true
     }
 });
@@ -59,6 +58,20 @@ io.on("connection", (socket) => {
     socket.on("log-out", (userId) => {
         activeUser = activeUser.filter(item => item.userId != userId)
         io.emit("active-users", activeUser)
+    })
+    socket.on("typing-start", (data) => {
+        console.log(data);
+        const sendSocket = onlineUser.get(data.selectedChat);
+        if (sendSocket) {
+            socket.to(sendSocket).emit("typing-status", { id: data.loginId, status: true })
+        }
+    })
+    socket.on("typing-end", (data) => {
+        console.log(data);
+        const sendSocket = onlineUser.get(data.selectedChat);
+        if (sendSocket) {
+            socket.to(sendSocket).emit("typing-status", { id: "", status: false })
+        }
     })
 
     socket.on("disconnect", (userId) => {
